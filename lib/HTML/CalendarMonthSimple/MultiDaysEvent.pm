@@ -1,6 +1,6 @@
 package HTML::CalendarMonthSimple::MultiDaysEvent;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use base 'HTML::CalendarMonthSimple';
@@ -344,6 +344,7 @@ sub add_event {
     my $self = shift;
     my %params = @_;
     my $date = $params{date};
+    $date =~ s/^0*//;
     my $event = {};
     $event->{event} = $params{event};
     $event->{length} = $params{length} || 1;
