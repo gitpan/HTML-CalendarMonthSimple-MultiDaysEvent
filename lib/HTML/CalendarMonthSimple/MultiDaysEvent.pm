@@ -1,9 +1,10 @@
 package HTML::CalendarMonthSimple::MultiDaysEvent;
 
-our $VERSION = '0.03';
+our $VERSION = '0.01';
 
 use strict;
 use base 'HTML::CalendarMonthSimple';
+use YAML;
 
 sub new {
     my $class = shift;
@@ -200,11 +201,12 @@ sub multidays_HTML {
       my %prerow;
       my %daycol;
       my $firstday = $days[(7*$WEEK)];
-      my $lastday = $firstday + 6;
+      my $lastday = 0;
       my $firstevent;
 
       for $DAY (0 .. 6) {
           my $thisday = $days[((7*$WEEK)+$DAY)];
+	  $lastday = $thisday + (6 - $DAY)  if ($thisday && (!$lastday));
           if ($#{$self->{events}->{$thisday}} > -1) {
               $firstevent = $thisday unless ($firstevent);
               $weekevents += scalar(@{$self->{events}->{$thisday}});
@@ -246,7 +248,11 @@ sub multidays_HTML {
          }
 
          # mark the date, and we should count the events first.
-         my $rowspan = $prerow{$thisday} || (1 + $weekevents);
+         my $rowspan;
+	 if ($firstevent > $thisday) {
+	    $rowspan = $prerow{$thisday} || (1 + $weekevents);
+	} else { $rowspan = 1 }
+	 
          # Done with this cell - push it into the table
          $html .= "<td style=\"border-bottom-width:0px;\"";
          $html .= " nowrap" if $nowrap;
@@ -271,9 +277,10 @@ sub multidays_HTML {
          $html .= "</td>\n";
       }
       $html .= "</tr>\n";
-              my $i = 1;
+      my $i = 1;
       for $DAY (0 .. 6) {
           my $thisday = $days[((7*$WEEK)+$DAY)];
+		  my $long = 0;
           if (exists $self->{events}->{$thisday}) {
               for my $event (sort { $a->{length} <=> $b->{length} } @{$self->{events}->{$thisday}}) {
                   my $colspan = $event->{length};
@@ -283,6 +290,7 @@ sub multidays_HTML {
                       if ($preoffset) {
 			  $html .= "<td rowspan=$preoffset style=\"border-top-width:0px;border-bottom-width:0px;\" boder=0 class=\"calweekendcell\" width=\"14%\" valign=\"top\" align=\"left\"></td>\n";
                       }
+		      $long++;
                   }
                   $html .= "<td bgcolor=#EEE colspan=$colspan style=\"border-top-width:0px;border-bottom-width:0px;\" width=\"14%\" valign=\"top\">".$event->{event}."</td>\n";
                   $html .= "</tr>\n";

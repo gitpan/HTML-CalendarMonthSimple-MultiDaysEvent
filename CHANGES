@@ -1,3 +1,5 @@
+v 0.04
+    fixed the bug about the rowspan when we generate the html - hcchien
 v 0.0.3
     we should remove the leading 0 from the event date - hcchien
 v 0.0.2
